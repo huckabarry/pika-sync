@@ -213,3 +213,12 @@ test('posts linking back to Pika are skipped and not counted', async () => {
   assert.equal(report.results[0].outcome, 'skipped-own-site-link');
   assert.equal(posted, 0);
 });
+
+test('a dry run lists every waiting post, not just one batch', async () => {
+  const { kv } = fakeKv();
+  globalThis.fetch = (async () => Response.json({
+    feed: [feedItem('c', '2026-10-04T00:00:00Z'), feedItem('b', '2026-10-03T00:00:00Z'), feedItem('a', '2026-10-02T00:00:00Z')]
+  })) as typeof fetch;
+  const report = await runSync(env(kv, { MAX_POSTS_PER_RUN: '1' }), { dryRun: true });
+  assert.equal(report.results.filter((r) => r.outcome === 'would-publish').length, 3);
+});

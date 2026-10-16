@@ -42,6 +42,22 @@ export default {
       });
     }
 
+    // Browser-friendly preview: /preview?key=ADMIN_TOKEN shows what would be published. Never posts.
+    if (url.pathname === '/preview' && request.method === 'GET') {
+      const expected = env.ADMIN_TOKEN?.trim();
+      if (!expected || url.searchParams.get('key') !== expected) return json({ error: 'unauthorized' }, 401);
+      try {
+        const report = await runSync(env, { dryRun: true });
+        return json({
+          wouldPublish: report.results.filter((result) => result.outcome === 'would-publish').length,
+          note: `Everything waiting is listed. Real runs send ${env.MAX_POSTS_PER_RUN ?? 3} at a time, every 5 minutes.`,
+          ...report
+        });
+      } catch (error) {
+        return json({ error: error instanceof Error ? error.message : String(error) }, 500);
+      }
+    }
+
     // Protected: run now. Add ?dry=1 to see what would be published without posting.
     if (url.pathname === '/run' && request.method === 'POST') {
       if (!authorized(request, env)) return json({ error: 'unauthorized' }, 401);

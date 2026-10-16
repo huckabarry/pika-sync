@@ -32,7 +32,13 @@ Secrets, set with `npx wrangler secret put NAME`:
 
 The Worker keeps its memory in the KV namespace `pika-sync-state`.
 
-## First deploy
+## First deploy (from the Cloudflare dashboard, works on a phone)
+
+1. Cloudflare dashboard > Workers & Pages > Create > Import a repository. Pick `huckabarry/pika-sync` and keep the default deploy command. Every push to `main` redeploys.
+2. Open the new `pika-sync` Worker > Settings > Variables and Secrets. Add two secrets, `PIKA_MICROPUB_TOKEN` and `ADMIN_TOKEN`. Saving redeploys.
+3. Preview in a browser: `https://pika-sync.<your-subdomain>.workers.dev/preview?key=YOUR_ADMIN_TOKEN`. It lists every post waiting to go out and never posts anything.
+
+## First deploy (from a terminal)
 
 ```sh
 npm install
@@ -41,7 +47,7 @@ npx wrangler secret put ADMIN_TOKEN
 npm run deploy
 ```
 
-Then, before the first scheduled run (or right after deploying), check what it plans to send:
+Then check what it plans to send (or open the /preview link above in a browser):
 
 ```sh
 curl -X POST "https://pika-sync.<your-subdomain>.workers.dev/run?dry=1" \

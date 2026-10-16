@@ -95,7 +95,8 @@ export async function runSync(env: Env, options: { dryRun?: boolean } = {}): Pro
       cursor = post.createdAt;
       continue;
     }
-    if (attempted >= limit) {
+    // A dry run lists everything waiting. A real run sends a few at a time.
+    if (!dryRun && attempted >= limit) {
       report.results.pop();
       break;
     }
