@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pika-sync",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  "triggers": {
+    // Check Bluesky every 5 minutes.
+    "crons": ["*/5 * * * *"]
+  },
+  "kv_namespaces": [
+    {
+      // Remembers which Bluesky posts were already sent to Pika.
+      "binding": "STATE",
+      "id": "4b8483aa8e9044ccbb2830d35024e4c5"
+    }
+  ],
+  "vars": {
+    "BLUESKY_DID": "did:plc:vt4k6d3e5rjw65cuzaf3nufq",
+    "BLUESKY_HANDLE": "bryan.eurosky.social",
+    // Only posts newer than this are sent on the very first run.
+    // The August 23 backfill already covered everything before it.
+    "START_AFTER": "2026-08-23T20:00:00Z",
+    // Posts linking to these sites are skipped so Pika never re-imports itself.
+    "SKIP_LINK_HOSTS": "bryan.pika.page",
+    "PIKA_TAG": "bluesky",
+    "MAX_POSTS_PER_RUN": "3"
+  }
+  // Secrets (set with `npx wrangler secret put NAME`):
+  //   PIKA_MICROPUB_TOKEN  Pika app token (Settings > App tokens)
+  //   ADMIN_TOKEN          any long random string, protects /run
+}
